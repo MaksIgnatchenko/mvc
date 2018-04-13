@@ -2,35 +2,36 @@
 require_once 'connection.php';
 
 
-abstract class AModel {
+abstract class AModel
+{
 	static public $_table;
 	static public $_pk;
 	static public $_fields = [];
-
 	static public $con;
 
-	static public function get_table(){
+	static public function get_table()
+	{
 		return static::$_table;
 	}
 	
 
-	public function create() {
-
+	public function create()
+	{
 		try {
 			$sql = 
-				"INSERT INTO " . self::$_table  . " (" .
-				implode(", ", self::$_fields) . ") VALUES (" . 
+				"INSERT INTO " . static::$_table  . " (" .
+				implode(", ", static::$_fields) . ") VALUES (" . 
 				implode(", ", 
 					array_map(function($x) {
 						return ":" . $x;
 					},
-					self::$_fields))
+					static::$_fields))
 				. ")";
-
-	        $query = self::$con->prepare($sql);
+			var_dump(static::$con->prepare($sql));	
+	        $query = static::$con->prepare($sql);
 
 	        $execute = [];
-	        foreach (self::$_fields as $field) {
+	        foreach (static::$_fields as $field) {
 	        	$execute[':' . $field] = $this->{$field};
 	        }
 
@@ -45,11 +46,13 @@ abstract class AModel {
 		return true;
 	}
 
-	public function __construct(){
-		self::$con = Connection::get_instance()->dbh;
+	public function __construct()
+	{
+		self::$con = Connection::get_instance();
 	}
 
-	static public function add_records($records){
+	static public function add_records($records)
+	{
 		 return array_map(
 			function($record) {
 				return $record->create();
@@ -57,13 +60,9 @@ abstract class AModel {
 			$records );
 	}
 
-	static public function get_all(){
-		$records = [];
-		//add select * from table using PDO
-	 	return $records;
-	} 
-
-	// abstract public function get_one($id);
+	abstract static public function get_all();
+	abstract static public function get_one($id);
+	public function delete();
 
 }
 
